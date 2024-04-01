@@ -41,6 +41,7 @@ class UsersDBRepository(IUsersDBRepository):
             VALUES (?, ?, ?)
             """,
             (parent.email, parent.name, parent.get_password_hash())
+            )
         self.connection.commit()
 
     def get_parents(self):
