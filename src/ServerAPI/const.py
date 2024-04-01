@@ -1,0 +1,3 @@
+
+LEN_SEPERATOR = "|"
+ARGS_SEPERATOR = "|"
