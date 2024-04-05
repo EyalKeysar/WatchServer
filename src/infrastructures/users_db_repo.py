@@ -27,14 +27,18 @@ class UsersDBRepository(IUsersDBRepository):
             CREATE TABLE IF NOT EXISTS children (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
-                parent_id INTEGER NOT NULL,
-                FOREIGN KEY (parent_id) REFERENCES parents (id)
+                FOREIGN KEY (parent_email) REFERENCES parents(email)
             )
             """
         )
         self.connection.commit()
 
     def add_parent(self, parent):
+        # Check if parent already exists
+        if self.get_parent(parent.email):
+            return
+
+        # Add parent
         self.cursor.execute(
             """
             INSERT INTO parents (email, username, password_hash)
@@ -52,22 +56,90 @@ class UsersDBRepository(IUsersDBRepository):
         )
         return self.cursor.fetchall()
     
-    def add_child(self, child):
+    def get_parent(self, parent):
         self.cursor.execute(
             """
-            INSERT INTO children (name, parent_id)
-            VALUES (?, ?)
+            SELECT * FROM parents WHERE email = ?
             """,
-            (child.name, child.parent_id)
+            (parent,)
+        )
+        return self.cursor.fetchone()
+ 
+    def update_parent(self, parent):
+        self.cursor.execute(
+            """
+            UPDATE parents SET username = ? WHERE email = ?
+            """,
+            (parent.new_name, parent.email)
         )
         self.connection.commit()
 
-    def get_children(self, parent_id):
+    def add_child(self, child):
         self.cursor.execute(
             """
-            SELECT * FROM children WHERE parent_id = ?
+            INSERT INTO children (name, parent_email)
+            VALUES (?, ?)
             """,
-            (parent_id,)
+            (child.name, child.parent_email)
+        )
+        self.connection.commit()
+
+    def get_children(self, parent_email):
+        self.cursor.execute(
+            """
+            SELECT * FROM children WHERE parent_email = ?
+            """,
+            (parent_email,)
         )
         return self.cursor.fetchall()
+    
+    def get_child(self, child_id):
+        self.cursor.execute(
+            """
+            SELECT * FROM children WHERE id = ?
+            """,
+            (child_id,)
+        )
+        return self.cursor.fetchone()
+    
+    def update_child(self, child):
+        self.cursor.execute(
+            """
+            UPDATE children SET name = ? WHERE id = ?
+            """,
+            (child.new_name, child.id)
+        )
+        self.connection.commit()
+
+    def delete_child(self, child_id):
+        self.cursor.execute(
+            """
+            DELETE FROM children WHERE id = ?
+            """,
+            (child_id,)
+        )
+        self.connection.commit()
+
+
+
+    def remove_child(self, child, parent):
+        self.cursor.execute(
+            """
+            DELETE FROM children WHERE id = ? AND parent_email = ?
+            """,
+            (child.id, parent.email)
+        )
+        self.connection.commit()
+
+    def remove_parent(self, parent):
+        self.cursor.execute(
+            """
+            DELETE FROM parents WHERE email = ?
+            """,
+            (parent.email,)
+        )
+        self.connection.commit()
+
+
+
     
