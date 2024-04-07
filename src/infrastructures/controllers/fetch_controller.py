@@ -7,6 +7,9 @@ class FetchController(IController):
     def __init__(self, fetch_service):
         self.fetch_service = fetch_service
         
-    def run(self, request):
-        return self.fetch_service.fetch(request)
+    def run(self, *args):
+        if args[0] == "parents":
+            return self.fetch_service.fetch_parents()
+        elif args[0] == "children":
+            return self.fetch_service.fetch_children()
         

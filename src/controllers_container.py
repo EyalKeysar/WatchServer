@@ -14,4 +14,15 @@ class ControllersContainer:
         self.children_manager_controller = children_manager_controller
         self.restrictions_controller = restrictions_controller
         self.fetch_controller = fetch_controller
+
+    def handle(self, request):
+        command_to_controller = {
+            "auth": self.authentication_controller,
+            "manage": self.children_manager_controller,
+            "restrict": self.restrictions_controller,
+            "fetch": self.fetch_controller
+        }
+        command, *args = request.split("|")
+
+        return command_to_controller[command].run(*args)
         

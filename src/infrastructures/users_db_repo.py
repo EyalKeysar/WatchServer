@@ -56,15 +56,16 @@ class UsersDBRepository(IUsersDBRepository):
         )
         return self.cursor.fetchall()
     
-    def get_parent(self, parent):
+    def get_parent_by_email(self, email):
         self.cursor.execute(
             """
             SELECT * FROM parents WHERE email = ?
             """,
-            (parent,)
+            (email,)
         )
-        return self.cursor.fetchone()
- 
+        self.cursor.fetchone()
+        
+
     def update_parent(self, parent):
         self.cursor.execute(
             """
@@ -84,12 +85,11 @@ class UsersDBRepository(IUsersDBRepository):
         )
         self.connection.commit()
 
-    def get_children(self, parent_email):
+    def get_children(self):
         self.cursor.execute(
             """
-            SELECT * FROM children WHERE parent_email = ?
-            """,
-            (parent_email,)
+            SELECT * FROM children
+            """
         )
         return self.cursor.fetchall()
     
