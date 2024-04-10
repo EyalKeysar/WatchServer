@@ -11,7 +11,7 @@ class AuthenticationService(IService):
         self.users_db_repository.add_parent(parent)
         return "Parent added successfully"
 
-    def login(self, username, password):
-        parent = self.users_db_repository.get_parent(username)
+    def login(self, email, password):
+        parent = self.users_db_repository.get_parent(email)
         
         

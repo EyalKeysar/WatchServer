@@ -23,7 +23,7 @@ class Worker:
         #     client_socket.close()
 
         # a = self.controllers_container.handle("auth|signup|a@gmail.com|usernameabs|passwordabs")
-        a = self.controllers_container.handle("fetch|parents")
+        a = self.controllers_container.handle("auth|login|")
         print(a)
 
 
