@@ -1,4 +1,3 @@
-from typing import Any
 from services.i_service import IService
 
 from entities.users_db_interface import IUsersDBRepository
@@ -8,8 +7,12 @@ class ChildrenManagerService(IService):
         self.users_db_repo = users_db_repo
         self.restrictions_db_repo = restrictions_db_repo
 
-    def add_child():
-        pass
+    def add_child(self, child):
+        self.restrictions_db_repo
+        
+        
+        .add_child(child)
+        return "Child added successfully"
     
     def remove_child():
         pass

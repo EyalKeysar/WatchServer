@@ -24,3 +24,9 @@ class FetchService(IService):
         Fetches children from the database.
         """
         return self.users_db_repo.get_children()
+    
+    def fetch_info(self):
+        """
+        Fetches information about the user.
+        """
+        return "Hello from FetchService!"

@@ -10,6 +10,8 @@ class FetchController(IController):
     def run(self, *args):
         if args[0] == "parents":
             return self.fetch_service.fetch_parents()
+        elif args[0] == "info":
+            return self.fetch_service.fetch_info()
         elif args[0] == "children":
             return self.fetch_service.fetch_children()
         

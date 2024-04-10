@@ -9,14 +9,6 @@ CREATE TABLE IF NOT EXISTS parents (
     password_hash TEXT NOT NULL
 )
 """
-CREATE_CHILDREN_TABLE = """
-CREATE TABLE IF NOT EXISTS children (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    parent_email TEXT NOT NULL,
-    FOREIGN KEY (parent_email) REFERENCES parents(email)
-)
-"""
 ADD_PARENT = """
 INSERT INTO parents (email, username, password_hash)
 VALUES (?, ?, ?)
@@ -29,22 +21,6 @@ SELECT * FROM parents WHERE email = ?
 """
 UPDATE_PARENT = """
 UPDATE parents SET username = ? WHERE email = ?
-"""
-GET_CHILDREN = """
-SELECT * FROM children
-"""
-ADD_CHILD = """
-INSERT INTO children (name, parent_email)
-VALUES (?, ?)
-"""
-GET_CHILD = """
-SELECT * FROM children WHERE id = ?
-"""
-UPDATE_CHILD = """
-UPDATE children SET name = ? WHERE id = ?
-"""
-REMOVE_CHILD = """
-DELETE FROM children WHERE id = ?
 """
 REMOVE_PARENT = """
 DELETE FROM parents WHERE email = ?
@@ -62,7 +38,6 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
         self.cursor.execute(CREATE_PARENTS_TABLE)
-        self.cursor.execute(CREATE_CHILDREN_TABLE)
         self.connection.commit()
 
     def add_parent(self, parent):
@@ -82,26 +57,6 @@ class UsersDBRepository(IUsersDBRepository):
 
     def update_parent(self, parent):
         self.cursor.execute(UPDATE_PARENT, (parent.new_name, parent.email))
-        self.connection.commit()
-
-    def add_child(self, child):
-        self.cursor.execute(ADD_CHILD, (child.name, child.parent_email))
-        self.connection.commit()
-
-    def get_children(self):
-        self.cursor.execute(GET_CHILDREN)
-        return self.cursor.fetchall()
-    
-    def get_child(self, child_id):
-        self.cursor.execute(GET_CHILD, (child_id,))
-        return self.cursor.fetchone()
-    
-    def update_child(self, child):
-        self.cursor.execute(UPDATE_CHILD, (child.new_name, child.id))
-        self.connection.commit()
-
-    def remove_child(self, child):
-        self.cursor.execute(REMOVE_CHILD, (child.id,))
         self.connection.commit()
 
     def remove_parent(self, parent):
