@@ -8,23 +8,18 @@ class Worker:
         self.network_handler = network_handler
 
     def work(self):
-        # self.network_handler.listen(HOST, PORT)
-        # while True:
-        #     print("Waiting for request...")
-        #     client_socket = self.network_handler.accept_client()
-        #     request = self.network_handler.receive(client_socket)
-        #     print("Request received: ", request)
+        self.network_handler.listen(HOST, PORT)
+        while True:
+            print("Waiting for request...")
+            client_socket = self.network_handler.accept_client()
+            request = self.network_handler.receive(client_socket)
+            print("Request received: ", request)
             
-        #     if request.startswith("fetch"):
-        #         ans = self.controllers_container.fetch_controller.run(request)
-        #         print("Sending response: ", ans)
-        #         self.network_handler.send(client_socket, ans)
+            ans = self.controllers_container.handle(request)
+            print("Sending response: ", ans)
+            self.network_handler.send(client_socket, ans)
             
-        #     client_socket.close()
-
-        # a = self.controllers_container.handle("auth|signup|a@gmail.com|usernameabs|passwordabs")
-        a = self.controllers_container.handle("auth|login|")
-        print(a)
+            client_socket.close()
 
 
 if __name__ == "__main__":

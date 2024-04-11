@@ -11,7 +11,7 @@ class ChildrenManagerService(IService):
         self.restrictions_db_repo
         
         
-        .add_child(child)
+        # .add_child(child)
         return "Child added successfully"
     
     def remove_child():

@@ -11,7 +11,10 @@ class FetchController(IController):
         if args[0] == "parents":
             return self.fetch_service.fetch_parents()
         elif args[0] == "info":
+            print("fetching info")
             return self.fetch_service.fetch_info()
         elif args[0] == "children":
             return self.fetch_service.fetch_children()
+        else:
+            print("Invalid command!, args: ", args)
         

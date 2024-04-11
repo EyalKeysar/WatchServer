@@ -41,11 +41,11 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection.commit()
 
     def add_parent(self, parent):
-        if self.get_parent(parent.email):
-            return
-        
+        if self.get_parent(parent.email) is not None:
+            return False
         self.cursor.execute(ADD_PARENT, (parent.email, parent.name, parent.get_password_hash()))
         self.connection.commit()
+        return True
 
     def get_parents(self):
         self.cursor.execute(GET_PARENTS)
@@ -53,7 +53,8 @@ class UsersDBRepository(IUsersDBRepository):
     
     def get_parent(self, email):
         self.cursor.execute(GET_PARENT, (email,))
-        self.cursor.fetchone()
+        return self.cursor.fetchone()
+
 
     def update_parent(self, parent):
         self.cursor.execute(UPDATE_PARENT, (parent.new_name, parent.email))

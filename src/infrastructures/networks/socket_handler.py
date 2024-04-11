@@ -17,4 +17,4 @@ class SocketHandler(NetworkHandler):
         return client_socket.recv(1024).decode()
 
     def send(self, client_socket, data):
-        client_socket.send(data.encode())
+        client_socket.send(str(data).encode())
