@@ -2,13 +2,22 @@ from infrastructures.controllers.i_controller import IController
 
 class AuthenticationController(IController):
     """
-    TODO: Add description
+    Controller for authentication operations.
     """
     def __init__(self, authentication_service):
         self.authentication_service = authentication_service
+        self.commands = {
+            "login": [self.authentication_service.login, ["email", "password"]],
+            "signup": [self.authentication_service.signup, ["email", "password", "username"]] 
+        }
         
     def run(self, *args):
-        if args[0] == "login":
-            return self.authentication_service.login(args[1], args[2])
-        elif args[0] == "signup":
-            return self.authentication_service.signup(args[1], args[2], args[3])
+        command = args[0]
+        if command not in self.commands:
+            return "Command not found"
+        
+        if(len(args) != len(self.commands[command][1]) + 1): # +1 for the command itself
+            return "Invalid number of arguments"
+        
+        return self.commands[command][0](*args[1:])
+        

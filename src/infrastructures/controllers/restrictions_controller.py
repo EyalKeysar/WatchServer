@@ -7,6 +7,15 @@ class RestrictionsController(IController):
     def __init__(self, restrictions_service):
         self.restrictions_service = restrictions_service
 
-    def run(self):
-        raise NotImplementedError
-        pass
+        self.commands = {
+        }
+
+    def run(self, *args):
+        command = args[0]
+        if command not in self.commands:
+            return "Command not found"
+        
+        if(len(args) != len(self.commands[command][1]) + 1):
+            return "Invalid number of arguments"
+        
+        return self.commands[command][0](*args[1:])

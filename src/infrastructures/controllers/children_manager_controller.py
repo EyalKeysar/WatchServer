@@ -6,11 +6,19 @@ class ChildrenManagerController(IController):
     """
     def __init__(self, children_manager_service):
         self.children_manager_service = children_manager_service
+
+        self.commands = {
+            "add": [self.children_manager_service.add_child, ["name"]],
+            "remove": [self.children_manager_service.remove_child, ["name"]]
+        }
+        # !! UPDATE CHILD !!
         
     def run(self, *args):
-        if args[0] == "add":
-            return self.children_manager_service.add_child(args[1])
-        elif args[0] == "remove":
-            return self.children_manager_service.remove_child(args[1])
+        command = args[0]
+        if command not in self.commands:
+            return "Command not found"
         
-        # !! UPDATE CHILD !!
+        if(len(args) != len(self.commands[command][1]) + 1): # +1 for the command itself
+            return "Invalid number of arguments"
+        
+        return self.commands[command][0](*args[1:])

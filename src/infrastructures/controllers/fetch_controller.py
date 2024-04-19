@@ -2,19 +2,23 @@ from infrastructures.controllers.i_controller import IController
 
 class FetchController(IController):
     """
-    TODO: Add description
+    Controller for fetching data from databases.
     """
     def __init__(self, fetch_service):
         self.fetch_service = fetch_service
+
+        self.commands = {
+            "parents": [self.fetch_service.fetch_parents, []],
+            "info": [self.fetch_service.fetch_info, []],
+            "children": [self.fetch_service.fetch_children, []]
+        }
         
     def run(self, *args):
-        if args[0] == "parents":
-            return self.fetch_service.fetch_parents()
-        elif args[0] == "info":
-            print("fetching info")
-            return self.fetch_service.fetch_info()
-        elif args[0] == "children":
-            return self.fetch_service.fetch_children()
-        else:
-            print("Invalid command!, args: ", args)
+        command = args[0]
+        if command not in self.commands:
+            return "Command not found"
         
+        if(len(args) != len(self.commands[command][1]) + 1):
+            return "Invalid number of arguments"
+        
+        return self.commands[command][0](*args[1:])
