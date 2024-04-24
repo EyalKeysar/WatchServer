@@ -31,3 +31,9 @@ class FetchService(IService):
         Fetches information about the user.
         """
         return "Hello from FetchService!"
+    
+    def fetch_statistics(self, child_id):
+        """
+        Fetches statistics for a child.
+        """
+        return self.users_db_repo.get_statistics(child_id)

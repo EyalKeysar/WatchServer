@@ -8,21 +8,18 @@ class Worker:
         self.network_handler = network_handler
 
     def work(self):
-        self.network_handler.listen(HOST, PORT)
+        self.network_handler.start()
         while True:
-            print("Waiting for request...")
-            client_socket = self.network_handler.accept_client()
-            request = self.network_handler.receive(client_socket)
-            print("Request received: ", request)
-            
-            ans = self.controllers_container.handle(request)
-            print("Sending response: ", ans)
-            self.network_handler.send(client_socket, ans)
-            
-            client_socket.close()
+            request = self.network_handler.get_request()
+            if request is None:
+                continue
+            client_socket, data = request[0], request[1]
+            response = self.controllers_container.handle(data.decode())
+            self.network_handler.send_response(client_socket, response)
+        self.network_handler.close()
 
 
 if __name__ == "__main__":
     from infrastructures.networks.socket_handler import SocketHandler
-    worker = Worker(SocketHandler())
+    worker = Worker(SocketHandler(HOST, PORT))
     worker.work()

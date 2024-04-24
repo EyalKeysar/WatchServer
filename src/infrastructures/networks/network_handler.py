@@ -2,17 +2,17 @@ from abc import ABC, abstractmethod
 
 class NetworkHandler(ABC):
     @abstractmethod
-    def listen(self, host, port):
+    def start(self):
         pass
 
     @abstractmethod
-    def accept_client(self):
+    def get_request(self):
         pass
 
     @abstractmethod
-    def receive(self, client_socket):
+    def send_response(self, client_socket, response):
         pass
 
     @abstractmethod
-    def send(self, client_socket, data):
+    def close(self):
         pass
