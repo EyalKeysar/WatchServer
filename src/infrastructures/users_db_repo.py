@@ -65,9 +65,6 @@ class UsersDBRepository(IUsersDBRepository):
         if str_parent is None:
             return None
         return ParentData(str_parent[0], str_parent[1], str_parent[2])
-        
-        
-
 
 
     def update_parent(self, parent):

@@ -17,6 +17,22 @@ CREATE TABLE IF NOT EXISTS restrictions (
     usage_time FLOAT NOT NULL
 )
 """
+CREATE_CHILDREN_TABLE = """
+CREATE TABLE IF NOT EXISTS children (
+    child_id INTEGER PRIMARY KEY,
+    parent_email TEXT REFERENCES parents(email),
+    name TEXT NOT NULL,
+    time_limit_id INTEGER REFERENCES time_limits(id)
+)
+"""
+CREATE_TIME_LIMITS_TABLE = """
+CREATE TABLE IF NOT EXISTS time_limits (
+    id INTEGER PRIMARY KEY,
+    start_time INTEGER NOT NULL,
+    end_time INTEGER NOT NULL,
+    allowed_time INTEGER NOT NULL,
+    time_span TEXT NOT NULL
+)"""
 ADD_RESTRICTION = """
 INSERT INTO restrictions (child_id, program_name, start_time, end_time, allowed_time, time_span, usage_time)
 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -32,6 +48,9 @@ DELETE FROM restrictions WHERE child_id = ? AND program_name = ?
 """
 REMOVE_ALL_RESTRICTIONS = """
 DELETE FROM restrictions WHERE child_id = ?
+"""
+GET_CHILDREN = """
+SELECT * FROM children WHERE parent_email = ?
 """
 
 class RestrictionsDBRepository(IRestrictionsDBRepository):
@@ -69,3 +88,7 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
     def remove_all_restrictions(self, child_id):
         self.cursor.execute(REMOVE_ALL_RESTRICTIONS, (child_id,))
         self.connection.commit()
+
+    def get_children(self, email):
+        self.cursor.execute(GET_CHILDREN, (email,))
+        return self.cursor.fetchall()
