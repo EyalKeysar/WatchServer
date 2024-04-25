@@ -1,5 +1,5 @@
 from entities.users_db_interface import IUsersDBRepository
-
+from ServerAPI.shared.SharedDTO import ParentData
 import sqlite3
 
 CREATE_PARENTS_TABLE = """
@@ -7,6 +7,13 @@ CREATE TABLE IF NOT EXISTS parents (
     email TEXT PRIMARY KEY NOT NULL,
     username TEXT NOT NULL,
     password_hash TEXT NOT NULL
+)
+"""
+CREATE_CHILDREN_TABLE = """
+CREATE TABLE IF NOT EXISTS children (
+    child_id INTEGER PRIMARY KEY,
+    parent_email TEXT REFERENCES parents(email),
+    name TEXT NOT NULL
 )
 """
 ADD_PARENT = """
@@ -38,12 +45,13 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
         self.cursor.execute(CREATE_PARENTS_TABLE)
+        self.cursor.execute(CREATE_CHILDREN_TABLE)
         self.connection.commit()
 
     def add_parent(self, parent):
         if self.get_parent(parent.email) is not None:
             return False
-        self.cursor.execute(ADD_PARENT, (parent.email, parent.name, parent.get_password_hash()))
+        self.cursor.execute(ADD_PARENT, (parent.email, parent.name, parent.password_hash))
         self.connection.commit()
         return True
 
@@ -53,7 +61,13 @@ class UsersDBRepository(IUsersDBRepository):
     
     def get_parent(self, email):
         self.cursor.execute(GET_PARENT, (email,))
-        return self.cursor.fetchone()
+        str_parent = self.cursor.fetchone()
+        if str_parent is None:
+            return None
+        return ParentData(str_parent[0], str_parent[1], str_parent[2])
+        
+        
+
 
 
     def update_parent(self, parent):

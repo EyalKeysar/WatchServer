@@ -1,6 +1,10 @@
 class Restriction:
-    def __init__(self, program_name, allowed_time, time_span, usage_time):
+    def __init__(self, program_name, start_time, end_time, allowed_time, time_span, usage_time):
         self.program_name = program_name
+
+        self.start_time = start_time
+        self.end_time = end_time
+
         self.allowed_time = allowed_time
         self.time_span = time_span
         self.usage_time = usage_time
@@ -21,6 +25,8 @@ class ChildData:
 
 
 class ParentData:
-    def __init__(self, email, name):
+    def __init__(self, email, name, password_hash):
         self.email = email
         self.name = name
+        self.password_hash = password_hash
+

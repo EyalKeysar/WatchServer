@@ -3,7 +3,7 @@ from services.i_service import IService
 from entities.users_db_interface import IUsersDBRepository
 from entities.restrictions_db_interface import IRestrictionsDBRepository
 
-from entities.dto.DTO import Parent
+from ServerAPI.shared.SharedDTO import ParentData
 class FetchService(IService):
     """
     Service for fetching data from the database.
@@ -19,7 +19,7 @@ class FetchService(IService):
         """
         return self.users_db_repo.get_parents()
     
-    def fetch_children(self):
+    def fetch_children(self, email):
         """
         Fetches children from the database.
         """

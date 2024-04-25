@@ -15,13 +15,14 @@ class FetchController(IController):
         }
         
     def run(self, *args):
-        command = args[0]
-        args = args[1:]
+        email = args[0]
+        command = args[1]
+        args = args[2:]
         if command not in self.commands:
             return "Command not found"
         
-        if(len(args) != len(self.commands[command][1]) + 1):
+        if(len(args) != len(self.commands[command][1])):
             print(args, self.commands[command][1])
             return "Invalid number of arguments"
         
-        return self.commands[command][0](*args[1:])
+        return self.commands[command][0](email, *args)

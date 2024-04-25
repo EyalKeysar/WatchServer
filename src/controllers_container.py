@@ -14,8 +14,9 @@ class ControllersContainer:
         self.children_manager_controller = children_manager_controller
         self.restrictions_controller = restrictions_controller
         self.fetch_controller = fetch_controller
+        self.authenticated_connections = []
 
-    def handle(self, request):
+    def handle(self, connection_id, request): # in socket the connection_id is the socket object
         command_to_controller = {
             "auth": self.authentication_controller,
             "manage": self.children_manager_controller,
@@ -24,5 +25,23 @@ class ControllersContainer:
         }
         command, *args = request.split("|")
 
-        return command_to_controller[command].run(*args)
+        if command not in command_to_controller:
+            return "Command not found"
+        
+        if command != "auth" and connection_id not in self.authenticated_connections:
+            return "Not authenticated"
+        elif command == "auth":
+            response, email = command_to_controller[command].run(*args)
+            if response == True:
+                self.authenticated_connections.append((connection_id, email))
+            return response
+        else:
+            email = None
+            for connection in self.authenticated_connections:
+                if connection[0] == connection_id:
+                    email = connection[1]
+                    break
+
+            args = [email] + args
+            return command_to_controller[command].run(*args)
         
