@@ -1,3 +1,4 @@
+import json
 from services.i_service import IService
 
 from entities.users_db_interface import IUsersDBRepository
@@ -36,8 +37,9 @@ class FetchService(IService):
                 restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5]))
 
             children.append(ChildData(child_id, parent_email, child_name, restrictions, time_limit))
-        return children
-
+        
+        return json.dumps(children)
+        
         # return self.users_db_repo.get_children()
     
     def fetch_info(self):

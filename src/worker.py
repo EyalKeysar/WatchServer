@@ -14,6 +14,7 @@ class Worker:
             if request is None:
                 continue
             client_socket, data = request[0], request[1]
+            print(f"Received data: {data} from {client_socket.getpeername()}")
             response = self.controllers_container.handle(client_socket, data.decode())
             self.network_handler.send_response(client_socket, response)
         self.network_handler.close()

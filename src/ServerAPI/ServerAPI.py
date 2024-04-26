@@ -2,6 +2,8 @@ from .send_recv import *
 from .const import *
 import threading
 import time
+import socket
+import json
 class ServerAPI:
     '''
         This class is used by the clients to communicate with the server.
@@ -81,6 +83,11 @@ class ServerAPI:
             This method is used to get the children from the server.
         '''
         respond = send_request(*self.build_request("fetch", "children"))
+        # parse the respond as json of list of ChildData
+        print("respond (json ch)" + respond)
+        self.children = json.loads(respond)
+        return self.children
+        
         
 
 # ---------------------------------------------------------------------------------------------------------------------
