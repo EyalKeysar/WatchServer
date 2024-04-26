@@ -1,8 +1,7 @@
-from .send_recv import *
+import s_socket
 from .const import *
 import threading
 import time
-import socket
 import json
 class ServerAPI:
     '''
@@ -40,7 +39,11 @@ class ServerAPI:
         '''
             This method is used to build the request to be sent to the server.
         '''
-        return self.server_socket, f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}" + f"{ARGS_SEPERATOR}".join(args)
+        if args == ():
+            return self.server_socket, f"{service}{ARGS_SEPERATOR}{command}"
+        else:
+            print("args: ", args)
+            return self.server_socket, f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}" + f"{ARGS_SEPERATOR}".join(args) 
 
 
 # AUTHENTICATION -----------------------------------------------------------------------------------------------------
@@ -88,7 +91,11 @@ class ServerAPI:
         self.children = json.loads(respond)
         return self.children
         
-        
+    def new_agent_request(self, mac_address):
+        '''
+            This method is used to send a new agent request to the server.
+        '''
+        return send_request(*self.build_request("auth", "new_agent", mac_address))
 
 # ---------------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

@@ -32,6 +32,7 @@ class ControllersContainer:
             return "Not authenticated"
         elif command == "auth":
             response, email = command_to_controller[command].run(*args)
+            print(f"Authenticated: {response} | {email}")
             if response == True:
                 self.authenticated_connections.append((connection_id, email))
             return response
