@@ -28,14 +28,20 @@ class ControllersContainer:
         if command not in command_to_controller:
             return "Command not found"
         
-        if command != "auth" and connection_id not in self.authenticated_connections:
+        is_authenticated = False
+        for connection, email in self.authenticated_connections:
+            if connection == connection_id:
+                is_authenticated = True
+                break
+        if command != "auth" and not is_authenticated:
             return "Not authenticated"
         elif command == "auth":
             response, email = command_to_controller[command].run(*args)
             print(f"Authenticated: {response} | {email}")
             if response == True:
+                print("Appending")
                 self.authenticated_connections.append((connection_id, email))
-            return response
+            return str(response)
         else:
             email = None
             for connection in self.authenticated_connections:

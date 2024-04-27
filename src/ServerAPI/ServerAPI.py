@@ -1,49 +1,68 @@
-import s_socket
 from .const import *
 import threading
 import time
 import json
+from .s_socket import *
+
+
+"""
+For reference, this is client side code
+
+import socket
+import s_socket
+
+def start_secure_client(host, port):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, port))
+    print(f"Connected to {host}:{port}")
+
+    tls_protocol = s_socket.TLSProtocol(client_socket)
+    tls_protocol.client_handshake()
+
+    while True:
+        message = input("Enter message to send (type 'quit' to exit): ")
+        if message == 'quit':
+            break
+        tls_protocol.send(message)
+        decrypted_data = tls_protocol.receive()
+        print("Received:", decrypted_data)
+
+    s_socket.close(client_socket)
+
+if __name__ == "__main__":
+    HOST = '127.0.0.1'
+    PORT = 12345
+    start_secure_client(HOST, PORT)
+"""
+
+
 class ServerAPI:
     '''
         This class is used by the clients to communicate with the server.
     '''
 
     def __init__(self):
-        self.server_ip = SERVER_IP
-        self.server_port = SERVER_PORT
-
-        self.is_connected = False
-
-        print(f"Connecting to server at {self.server_ip}:{self.server_port}")
-
-        # connect via thread to avoid blocking the main thread
+        host = SERVER_IP
+        port = SERVER_PORT
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        threading.Thread(target=self.connect).start()
-        self.children = []
+        self.server_socket.connect((host, port))
+        print(f"Connected to {host}:{port}")
 
-    def connect(self):
-        '''
-            This method is used to connect to the server.
-        '''
-        while True:
-            time.sleep(2)
-            if not self.is_connected:
-                try:
-                    self.server_socket.connect((self.server_ip, self.server_port))
-                    self.is_connected = True
-                except Exception as e:
-                    print(f"Failed to connect to server: {e}")
-                    self.is_connected = False
+        self.tls_protocol = TLSProtocol(self.server_socket)
+        self.tls_protocol.client_handshake()
+
+
+
 
     def build_request(self, service, command, *args):
         '''
             This method is used to build the request to be sent to the server.
         '''
         if args == ():
-            return self.server_socket, f"{service}{ARGS_SEPERATOR}{command}"
+            return f"{service}{ARGS_SEPERATOR}{command}"
         else:
             print("args: ", args)
-            return self.server_socket, f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}" + f"{ARGS_SEPERATOR}".join(args) 
+            return f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}" + f"{ARGS_SEPERATOR}".join(args) 
 
 
 # AUTHENTICATION -----------------------------------------------------------------------------------------------------
@@ -52,13 +71,15 @@ class ServerAPI:
         '''
             This method is used to login to the server.
         '''
-        return send_request(*self.build_request("auth", "login", email, password))
+        self.tls_protocol.send(self.build_request("auth", "login", email, password))
+        return self.tls_protocol.receive()
     
     def signup(self, email, password, username):
         '''
             This method is used to signup to the server.
         '''
-        return send_request(*self.build_request("auth", "signup", email, password, username))
+        self.tls_protocol.send(self.build_request("auth", "signup", email, password, username))
+        return self.tls_protocol.receive()
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -67,25 +88,30 @@ class ServerAPI:
         '''
             This method is used to get the information from the server.
         '''
-        return send_request(*self.build_request("fetch", "parents"))
-    
+        self.tls_protocol.send(self.build_request("fetch", "parents"))
+        return self.tls_protocol.receive()
+
     def get_statistics(self):
         '''
             This method is used to get the statistics from the server.
         '''
-        return send_request(*self.build_request("fetch", "statistics"))
+        self.tls_protocol.send(self.build_request("fetch", "statistics"))
+        return self.tls_protocol.receive()
     
     def get_restrictions(self):
         '''
             This method is used to get the restrictions from the server.
         '''
-        return send_request(*self.build_request("fetch", "restrictions"))
-    
+        self.tls_protocol.send(self.build_request("fetch", "restrictions"))
+        
+        return self.tls_protocol.receive()
+
     def get_children(self):
         '''
             This method is used to get the children from the server.
         '''
-        respond = send_request(*self.build_request("fetch", "children"))
+        self.tls_protocol.send(self.build_request("fetch", "children"))
+        respond = self.tls_protocol.receive()
         # parse the respond as json of list of ChildData
         print("respond (json ch)" + respond)
         self.children = json.loads(respond)
@@ -95,8 +121,8 @@ class ServerAPI:
         '''
             This method is used to send a new agent request to the server.
         '''
-        return send_request(*self.build_request("auth", "new_agent", mac_address))
-
+        self.tls_protocol.send(self.build_request("auth", "new_agent", mac_address))
+        return self.tls_protocol.receive()
 # ---------------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     server = ServerAPI()

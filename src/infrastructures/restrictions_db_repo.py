@@ -63,6 +63,8 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
         self.cursor.execute(CREATE_RESTRICTIONS_TABLE)
+        self.cursor.execute(CREATE_CHILDREN_TABLE)
+        self.cursor.execute(CREATE_TIME_LIMITS_TABLE)
         self.connection.commit()
 
     def add_restriction(self, restriction):

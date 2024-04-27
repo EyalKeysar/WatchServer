@@ -15,12 +15,12 @@ class Worker:
                 continue
             client_socket, data = request[0], request[1]
             print(f"Received data: {data} from {client_socket.getpeername()}")
-            response = self.controllers_container.handle(client_socket, data.decode())
+            response = self.controllers_container.handle(client_socket, data)
             self.network_handler.send_response(client_socket, response)
         self.network_handler.close()
 
 
 if __name__ == "__main__":
-    from infrastructures.networks.socket_handler import SocketHandler
-    worker = Worker(SocketHandler(HOST, PORT))
+    from infrastructures.networks.s_socket_handler import SSLSocketHandler
+    worker = Worker(SSLSocketHandler(HOST, PORT))
     worker.work()
