@@ -80,6 +80,13 @@ class ServerAPI:
         '''
         self.tls_protocol.send(self.build_request("auth", "signup", email, password, username))
         return self.tls_protocol.receive()
+    
+    def new_agent_request(self, mac_address):
+        '''
+            This method is used to send a new agent request to the server.
+        '''
+        self.tls_protocol.send(self.build_request("auth", "new_agent", mac_address))
+        return self.tls_protocol.receive()
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -117,12 +124,7 @@ class ServerAPI:
         self.children = json.loads(respond)
         return self.children
         
-    def new_agent_request(self, mac_address):
-        '''
-            This method is used to send a new agent request to the server.
-        '''
-        self.tls_protocol.send(self.build_request("auth", "new_agent", mac_address))
-        return self.tls_protocol.receive()
+
 # ---------------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     server = ServerAPI()

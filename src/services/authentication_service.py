@@ -3,10 +3,11 @@ from hashlib import sha256
 from services.i_service import IService
 
 from entities.users_db_interface import IUsersDBRepository
+from entities.restrictions_db_interface import IRestrictionsDBRepository
 from ServerAPI.shared.SharedDTO import ParentData
 
 class AuthenticationService(IService):
-    def __init__(self, users_db_repository: IUsersDBRepository):
+    def __init__(self, users_db_repository: IUsersDBRepository, restrictions_db_repository: IRestrictionsDBRepository):
         self.users_db_repository = users_db_repository
 
     def signup(self, email, password, username):
@@ -28,3 +29,7 @@ class AuthenticationService(IService):
             return True, parent.email
         print("Incorrect password")
         return False, None
+    
+    def new_agent(self, mac_address):
+        auth_str = self.users_db_repository.new_agent(mac_address)
+        return auth_str, None

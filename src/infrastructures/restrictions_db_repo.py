@@ -52,6 +52,10 @@ DELETE FROM restrictions WHERE child_id = ?
 GET_CHILDREN = """
 SELECT * FROM children WHERE parent_email = ?
 """
+ADD_CHILD = """
+INSERT INTO children (child_id, parent_email, name)
+VALUES (?, ?, ?)
+"""
 
 class RestrictionsDBRepository(IRestrictionsDBRepository):
     """
@@ -94,3 +98,9 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
     def get_children(self, email):
         self.cursor.execute(GET_CHILDREN, (email,))
         return self.cursor.fetchall()
+    
+    def add_child(self, child_id, parent_email, name):
+        self.cursor.execute(ADD_CHILD, (child_id, parent_email, name))
+        self.connection.commit()
+        return True
+        

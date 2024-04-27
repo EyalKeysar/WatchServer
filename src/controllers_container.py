@@ -41,6 +41,7 @@ class ControllersContainer:
             if response == True:
                 print("Appending")
                 self.authenticated_connections.append((connection_id, email))
+
             return str(response)
         else:
             email = None

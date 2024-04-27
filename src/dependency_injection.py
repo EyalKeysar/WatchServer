@@ -24,7 +24,7 @@ def inject():
     users_db_repo = UsersDBRepository(USERS_DB_PATH)
     restrictions_db_repo = RestrictionsDBRepository(RESTRICTIONS_DB_PATH)
 
-    auth_s = AuthenticationService(users_db_repo)
+    auth_s = AuthenticationService(users_db_repo, restrictions_db_repo)
     children_manager_s = ChildrenManagerService(users_db_repo, restrictions_db_repo)
     fetch_s = FetchService(users_db_repo, restrictions_db_repo)
     restrictions_s = RestrictionsService(restrictions_db_repo)
