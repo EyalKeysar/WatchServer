@@ -32,4 +32,4 @@ class AuthenticationService(IService):
     
     def new_agent(self, mac_address):
         auth_str = self.users_db_repository.new_agent(mac_address)
-        return auth_str, None
+        return auth_str, None # None because no email is verified yet in this operation

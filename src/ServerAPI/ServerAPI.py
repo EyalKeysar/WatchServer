@@ -126,6 +126,17 @@ class ServerAPI:
         
 
 # ---------------------------------------------------------------------------------------------------------------------
+
+
+# CHILDREN MANAGEMENT -----------------------------------------------------------------------------------------------
+    def confirm_agent(self, auth_str, child_name):
+        '''
+            This method is used to confirm the agent.
+        '''
+        self.tls_protocol.send(self.build_request("manage", "confirm_agent", auth_str, child_name))
+        return self.tls_protocol.receive()
+
+
 if __name__ == '__main__':
     server = ServerAPI()
     print(server.get_info())

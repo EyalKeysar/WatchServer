@@ -32,11 +32,11 @@ class FetchService(IService):
             parent_email = child[1]
             child_name = child[2]
             restrictions = []
-            time_limit = self.restrictions_db_repo.get_time_limit(child_id)
+            time_limit = self.restrictions_db_repo.get_time_limit(email, child_id)
             for restriction in self.restrictions_db_repo.get_restrictions(child_id):
                 restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5]))
 
-            children.append(ChildData(child_id, parent_email, child_name, restrictions, time_limit))
+            children.append(ChildData(child_id, parent_email, child_name, restrictions, time_limit).toJson())
         
         return json.dumps(children)
         

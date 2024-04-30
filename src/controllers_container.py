@@ -33,6 +33,8 @@ class ControllersContainer:
             if connection == connection_id:
                 is_authenticated = True
                 break
+
+
         if command != "auth" and not is_authenticated:
             return "Not authenticated"
         elif command == "auth":
@@ -51,5 +53,7 @@ class ControllersContainer:
                     break
 
             args = [email] + args
-            return command_to_controller[command].run(*args)
+
+            response = command_to_controller[command].run(*args)
+            return response if response is not None else "None"
         

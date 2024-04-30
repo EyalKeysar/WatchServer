@@ -18,8 +18,27 @@ class ChildrenManagerService(IService):
     def remove_child():
         pass
 
-    def confirm_agent(self, parent_email, auth_string):
-        self.users_db_repo.confirm_agent(parent_email, auth_string)
-        child_id = self.get_child_id()
-        self.restrictions_db_repo.add_child(child_id, parent_email, "name")
+    def confirm_agent(self, parent_email, auth_string, child_name):
+        is_valid = self.users_db_repo.validate_auth_str(auth_string)
+        if not is_valid:
+            return "Invalid auth string"
+        mac_address = self.users_db_repo.get_waiting_agent_mac_address(auth_string)
+        if mac_address is None:
+            return "smthing went wrong with the mac address of waiting agent or the auth string"
+
+        # variables i have at this point: parent_email, auth_string, child_name, mac_address
+
+        self.users_db_repo.remove_waiting_agent(auth_string)
+
+        child_id = self.users_db_repo.add_child(mac_address, parent_email, auth_string)
+
+        self.restrictions_db_repo.add_child(child_id, parent_email, child_name)
+
         return "Agent confirmed successfully"
+
+
+        
+        
+        # child_id = self.get_child_id()
+        # self.restrictions_db_repo.add_child(child_id, parent_email, "name")
+        # return "Agent confirmed successfully"

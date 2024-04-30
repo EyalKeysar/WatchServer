@@ -1,3 +1,5 @@
+import json
+
 class Restriction:
     def __init__(self, id, child_id, program_name, start_time, end_time, allowed_time, time_span, usage_time):
         self.id = id
@@ -27,6 +29,9 @@ class ChildData:
         self.child_name = child_name
         self.restrictions = restrictions
         self.time_limit = time_limit
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class ParentData:

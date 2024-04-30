@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS restrictions (
 CREATE_CHILDREN_TABLE = """
 CREATE TABLE IF NOT EXISTS children (
     child_id INTEGER PRIMARY KEY,
-    parent_email TEXT REFERENCES parents(email),
+    parent_email TEXT,
     name TEXT NOT NULL,
     time_limit_id INTEGER REFERENCES time_limits(id)
 )
@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS time_limits (
     start_time INTEGER NOT NULL,
     end_time INTEGER NOT NULL,
     allowed_time INTEGER NOT NULL,
-    time_span TEXT NOT NULL
+    time_span TEXT NOT NULL,
+    usage_time FLOAT NOT NULL
 )"""
 ADD_RESTRICTION = """
 INSERT INTO restrictions (child_id, program_name, start_time, end_time, allowed_time, time_span, usage_time)
@@ -103,4 +104,14 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         self.cursor.execute(ADD_CHILD, (child_id, parent_email, name))
         self.connection.commit()
         return True
+    
+    def get_time_limit(self, parent_email, child_id):
         
+        self.cursor.execute("SELECT time_limit_id FROM children WHERE parent_email = ? AND child_id = ?", (parent_email, child_id))
+        time_limit_id = self.cursor.fetchone()
+        if time_limit_id is None: # Child not found
+            return None
+        
+        self.cursor.execute("SELECT * FROM time_limits WHERE id = ?", (time_limit_id[0],))
+        time_limit = self.cursor.fetchone()
+        return time_limit

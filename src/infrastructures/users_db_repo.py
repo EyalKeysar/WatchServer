@@ -100,6 +100,7 @@ class UsersDBRepository(IUsersDBRepository):
     def confirm_agent(self, parent_email, auth_string):
         self.cursor.execute("SELECT * FROM agents WHERE auth_string = ?", (auth_string,))
         agent = self.cursor.fetchone()
+        print(agent)
         if agent is None:
             return False
         # if more than 5 minutes have passed since the agent was created, it is invalid
@@ -117,11 +118,40 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection.commit()
         return True
     
-    def get_child_id(self, auth_string):
-        self.cursor.execute("SELECT * FROM children WHERE auth_string = ?", (auth_string,))
-        child = self.cursor.fetchone()
-        if child is None:
+    def validate_auth_str(self, auth_string):
+        self.cursor.execute("SELECT * FROM agents WHERE auth_string = ?", (auth_string,))
+        agent = self.cursor.fetchone()
+        if agent is None:
+            return False
+        # if more than 5 minutes have passed since the agent was created, it is invalid
+        time = datetime.datetime.now()
+        agent_time = datetime.datetime.strptime(agent[2], "%Y-%m-%d %H:%M:%S.%f")
+        if (time - agent_time).seconds > 300:
+            return False
+        
+        return True
+    
+    def get_waiting_agent_mac_address(self, auth_string):
+        self.cursor.execute("SELECT * FROM agents WHERE auth_string = ?", (auth_string,))
+        agent = self.cursor.fetchone()
+        if agent is None:
             return None
-        return child[0]
+        return agent[1]
+    
+    def remove_waiting_agent(self, auth_string):
+        self.cursor.execute("DELETE FROM agents WHERE auth_string = ?", (auth_string,))
+        self.connection.commit()
+
+    def add_child(self, mac_address, parent_email, auth_string):
+        self.cursor.execute("SELECT * FROM children")
+        children = self.cursor.fetchall()
+        child_id = len(children) + 1
+
+        self.cursor.execute("INSERT INTO children (child_id, auth_string, mac_address, parent_email) VALUES (?, ?, ?, ?)", (child_id, auth_string, mac_address, parent_email))
+        self.connection.commit()
+        return child_id
+    
+
+    
 
 
