@@ -1,7 +1,6 @@
 from entities.users_db_interface import IUsersDBRepository
 from ServerAPI.shared.SharedDTO import ParentData
 import sqlite3
-import datetime
 import hashlib
 
 CREATE_PARENTS_TABLE = """
@@ -46,6 +45,12 @@ ADD_AGENT = """
 INSERT INTO agents (auth_string, mac_address, time_stamp)
 VALUES (?, ?, ?)
 """
+GET_WAITING_AGENT = """
+SELECT * FROM agents WHERE auth_string = ?
+"""
+DELETE_WAITING_AGENT = """
+DELETE FROM agents WHERE auth_string = ?
+"""
 
 class UsersDBRepository(IUsersDBRepository):
     """
@@ -64,22 +69,19 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection.commit()
 
     def add_parent(self, parent):
-        if self.get_parent(parent.email) is not None:
+        if self.get_parent(parent.email)[1] is not None:
+            print(f"Parent with email {parent.email} already exists, parent: {self.get_parent(parent.email)}")
             return False
         self.cursor.execute(ADD_PARENT, (parent.email, parent.name, parent.password_hash))
         self.connection.commit()
         return True
-
-    def get_parents(self):
-        self.cursor.execute(GET_PARENTS)
-        return self.cursor.fetchall()
     
     def get_parent(self, email):
         self.cursor.execute(GET_PARENT, (email,))
         str_parent = self.cursor.fetchone()
         if str_parent is None:
-            return None
-        return ParentData(str_parent[0], str_parent[1], str_parent[2])
+            return False, None, None
+        return True, str_parent[1], str_parent[2]
 
 
     def update_parent(self, parent):
@@ -90,66 +92,36 @@ class UsersDBRepository(IUsersDBRepository):
         self.cursor.execute(REMOVE_PARENT, (parent.email,))
         self.connection.commit()
 
-    def new_agent(self, mac_address):
-        time = datetime.datetime.now()
-        auth_string = hashlib.sha256(mac_address.encode() + str(time).encode()).hexdigest()[:8]
-        self.cursor.execute(ADD_AGENT, (auth_string, mac_address, str(time)))
-        self.connection.commit()
-        return auth_string
-    
-    def confirm_agent(self, parent_email, auth_string):
-        self.cursor.execute("SELECT * FROM agents WHERE auth_string = ?", (auth_string,))
-        agent = self.cursor.fetchone()
-        print(agent)
-        if agent is None:
-            return False
-        # if more than 5 minutes have passed since the agent was created, it is invalid
-        time = datetime.datetime.now()
-        agent_time = datetime.datetime.strptime(agent[2], "%Y-%m-%d %H:%M:%S.%f")
-        if (time - agent_time).seconds > 300:
-            return False
-
-        # generate child_id
-        self.cursor.execute("SELECT * FROM children")
-        children = self.cursor.fetchall()
-        child_id = len(children) + 1
-
-        self.cursor.execute("INSERT INTO children (child_id, auth_string, mac_address, parent_email) VALUES (?, ?, ?, ?)", (child_id, auth_string, agent[1], parent_email))
+    def new_agent(self, mac_address, current_time, auth_string):
+        self.cursor.execute(ADD_AGENT, (auth_string, mac_address, current_time))
         self.connection.commit()
         return True
     
-    def validate_auth_str(self, auth_string):
-        self.cursor.execute("SELECT * FROM agents WHERE auth_string = ?", (auth_string,))
+    def get_time_stamp(self, auth_string):
+        self.cursor.execute(GET_WAITING_AGENT, (auth_string,))
         agent = self.cursor.fetchone()
         if agent is None:
-            return False
-        # if more than 5 minutes have passed since the agent was created, it is invalid
-        time = datetime.datetime.now()
-        agent_time = datetime.datetime.strptime(agent[2], "%Y-%m-%d %H:%M:%S.%f")
-        if (time - agent_time).seconds > 300:
-            return False
-        
-        return True
+            return None
+        return agent[2]
     
     def get_waiting_agent_mac_address(self, auth_string):
-        self.cursor.execute("SELECT * FROM agents WHERE auth_string = ?", (auth_string,))
+        self.cursor.execute(GET_WAITING_AGENT, (auth_string,))
         agent = self.cursor.fetchone()
         if agent is None:
             return None
         return agent[1]
     
     def remove_waiting_agent(self, auth_string):
-        self.cursor.execute("DELETE FROM agents WHERE auth_string = ?", (auth_string,))
+        self.cursor.execute(DELETE_WAITING_AGENT, (auth_string,))
         self.connection.commit()
 
-    def add_child(self, mac_address, parent_email, auth_string):
+    def get_all_children(self):
         self.cursor.execute("SELECT * FROM children")
-        children = self.cursor.fetchall()
-        child_id = len(children) + 1
+        return self.cursor.fetchall()
 
+    def add_child(self, mac_address, parent_email, auth_string, child_id):
         self.cursor.execute("INSERT INTO children (child_id, auth_string, mac_address, parent_email) VALUES (?, ?, ?, ?)", (child_id, auth_string, mac_address, parent_email))
         self.connection.commit()
-        return child_id
     
 
     

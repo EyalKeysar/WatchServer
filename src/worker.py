@@ -21,6 +21,6 @@ class Worker:
 
 
 if __name__ == "__main__":
-    from infrastructures.networks.s_socket_handler import SSLSocketHandler
-    worker = Worker(SSLSocketHandler(HOST, PORT))
+    from infrastructures.networks.s_socket_handler import SecureSocketHandler
+    worker = Worker(SecureSocketHandler(HOST, PORT))
     worker.work()

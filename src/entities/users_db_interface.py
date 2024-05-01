@@ -19,13 +19,6 @@ class IUsersDBRepository(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def get_parents(self):
-        """
-        Returns a list of all parents in the database.
-        """
-        raise NotImplementedError
-    
-    @abstractmethod
     def get_parent(self, parent):
         """
         Returns a parent from the database.

@@ -8,8 +8,6 @@ class ChildrenManagerController(IController):
         self.children_manager_service = children_manager_service
 
         self.commands = {
-            "add": [self.children_manager_service.add_child, ["name"]],
-            "remove": [self.children_manager_service.remove_child, ["name"]],
             "confirm_agent": [self.children_manager_service.confirm_agent, ["auth_string", "child_name"]]
         }
         # !! UPDATE CHILD !!
