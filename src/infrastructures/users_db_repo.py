@@ -122,6 +122,7 @@ class UsersDBRepository(IUsersDBRepository):
     def add_child(self, mac_address, parent_email, auth_string, child_id):
         self.cursor.execute("INSERT INTO children (child_id, auth_string, mac_address, parent_email) VALUES (?, ?, ?, ?)", (child_id, auth_string, mac_address, parent_email))
         self.connection.commit()
+        return True
     
 
     
