@@ -3,7 +3,7 @@ import threading
 import time
 import json
 from .s_socket import *
-
+from .shared.SharedDTO import *
 
 """
 For reference, this is client side code
@@ -125,13 +125,16 @@ class ServerAPI:
         return self.tls_protocol.receive()
     
     @connection_needed
-    def get_restrictions(self):
+    def get_restrictions(self, child_name):
         '''
             This method is used to get the restrictions from the server.
         '''
-        self.tls_protocol.send(self.build_request("fetch", "restrictions"))
+        self.tls_protocol.send(self.build_request("fetch", "restrictions", child_name))
         
-        return self.tls_protocol.receive()
+        respond = self.tls_protocol.receive()
+        # parse the respond as json of list of RestrictionData
+        print("respond (json res)" + respond)
+        return RestrictionSerializer.deserialize(respond)
 
 
     @connection_needed
@@ -143,7 +146,7 @@ class ServerAPI:
         respond = self.tls_protocol.receive()
         # parse the respond as json of list of ChildData
         print("respond (json ch)" + respond)
-        self.children = json.loads(respond)
+        self.children = ChildListSerializer.deserialize(respond)
         return self.children
         
 

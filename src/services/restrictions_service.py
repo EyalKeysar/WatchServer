@@ -14,6 +14,3 @@ class RestrictionsService(IService):
 
     def remove_restriction():
         pass
-
-    def fetch_restriction():
-        pass

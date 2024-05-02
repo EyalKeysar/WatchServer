@@ -14,12 +14,6 @@ class FetchService(IService):
         self.users_db_repo = users_db_repo
         self.restrictions_db_repo = restrictions_db_repo
     
-    def fetch_parents(self):
-        """
-        Fetches parents from the database.
-        """
-        return self.users_db_repo.get_parents()
-    
     def fetch_children(self, email):
         """
         Fetches children from the database.
@@ -36,12 +30,26 @@ class FetchService(IService):
             for restriction in self.restrictions_db_repo.get_restrictions(child_id):
                 restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5]))
 
-            children.append(ChildData(child_id, parent_email, child_name, restrictions, time_limit).toJson())
-        
-        return json.dumps(children)
+            children.append(ChildData(child_id, parent_email, child_name, restrictions, time_limit))
+            print("children = ", ChildData(child_id, parent_email, child_name, restrictions, time_limit).child_id)
+
+        return ChildListSerializer.serialize(children)
         
         # return self.users_db_repo.get_children()
-    
+
+    def fetch_restrictions(self, email, child_name):
+        """
+        Fetches restrictions for a child.
+        """
+        child_id = self.restrictions_db_repo.get_child_id(email, child_name)
+        restrictions_raw = self.restrictions_db_repo.get_restrictions(child_id)
+        restrictions_list = []
+        for restriction in restrictions_raw:
+            restrictions_list.append(RestrictionSerializer.serialize(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5], restriction[6], restriction[7])))
+
+        return json.dumps(restrictions_list)
+
+
     def fetch_info(self):
         """
         Fetches information about the user.

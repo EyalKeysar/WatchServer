@@ -76,6 +76,12 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         self.cursor.execute(ADD_RESTRICTION, (restriction.child_id, restriction.program_name, restriction.start_time, restriction.end_time, restriction.allowed_time, restriction.time_span, restriction.usage_time))
         self.connection.commit()
 
+    def get_child_id(self, parent_email, child_name):
+        self.cursor.execute("SELECT child_id FROM children WHERE parent_email = ? AND name = ?", (parent_email, child_name))
+        child_id = self.cursor.fetchone()
+        if child_id is None: # Child not found
+            return None
+
     def get_restrictions(self, child_id):
         self.cursor.execute(GET_RESTRICTIONS, (child_id,))
         return self.cursor.fetchall()

@@ -8,10 +8,10 @@ class FetchController(IController):
         self.fetch_service = fetch_service
 
         self.commands = {
-            "parents": [self.fetch_service.fetch_parents, []],
             "info": [self.fetch_service.fetch_info, []],
             "children": [self.fetch_service.fetch_children, []],
-            "statistics": [self.fetch_service.fetch_statistics, ["child_id"]]
+            "statistics": [self.fetch_service.fetch_statistics, ["child_id"]],
+            "restrictions": [self.fetch_service.fetch_restrictions, ["child_name"]],
         }
         
     def run(self, *args):
