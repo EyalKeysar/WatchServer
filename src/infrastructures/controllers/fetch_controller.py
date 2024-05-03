@@ -12,6 +12,7 @@ class FetchController(IController):
             "children": [self.fetch_service.fetch_children, []],
             "statistics": [self.fetch_service.fetch_statistics, ["child_id"]],
             "restrictions": [self.fetch_service.fetch_restrictions, ["child_name"]],
+            "programs": [self.fetch_service.fetch_programs, ["child_name"]],
         }
         
     def run(self, *args):

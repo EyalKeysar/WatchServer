@@ -81,6 +81,11 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         child_id = self.cursor.fetchone()
         if child_id is None: # Child not found
             return None
+        return child_id[0]
+    
+    def get_len_all_restrictions(self):
+        self.cursor.execute("SELECT COUNT(*) FROM restrictions")
+        return self.cursor.fetchone()[0]
 
     def get_restrictions(self, child_id):
         self.cursor.execute(GET_RESTRICTIONS, (child_id,))

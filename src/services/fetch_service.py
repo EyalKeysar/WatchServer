@@ -28,7 +28,7 @@ class FetchService(IService):
             restrictions = []
             time_limit = self.restrictions_db_repo.get_time_limit(email, child_id)
             for restriction in self.restrictions_db_repo.get_restrictions(child_id):
-                restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5]))
+                restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5], restriction[6], restriction[7]))
 
             children.append(ChildData(child_id, parent_email, child_name, restrictions, time_limit))
             print("children = ", ChildData(child_id, parent_email, child_name, restrictions, time_limit).child_id)
@@ -43,12 +43,19 @@ class FetchService(IService):
         """
         child_id = self.restrictions_db_repo.get_child_id(email, child_name)
         restrictions_raw = self.restrictions_db_repo.get_restrictions(child_id)
-        restrictions_list = []
+        restrictions = []
         for restriction in restrictions_raw:
-            restrictions_list.append(RestrictionSerializer.serialize(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5], restriction[6], restriction[7])))
+            print("restriction = ", restriction)
+            restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5], restriction[6], restriction[7]))
+        return RestrictionListSerializer.serialize(restrictions)
 
-        return json.dumps(restrictions_list)
 
+    def fetch_programs(self, email, child_name):
+        """
+        Fetches programs for a child.
+        """
+        child_id = self.restrictions_db_repo.get_child_id(email, child_name)
+        return "example_program_1"
 
     def fetch_info(self):
         """

@@ -106,6 +106,16 @@ class ServerAPI:
         return self.tls_protocol.receive()
 # ---------------------------------------------------------------------------------------------------------------------
 
+# RESTRICTIONS MANAGEMENT --------------------------------------------------------------------------------------------
+
+    @connection_needed
+    def add_restriction(self, child_name, program_name, start_time, end_time, allowed_time, time_span):
+        '''
+            This method is used to add a restriction to the server.
+        '''
+        self.tls_protocol.send(self.build_request("restrict", "add_restriction", child_name, program_name, start_time, end_time, allowed_time, time_span))
+        return self.tls_protocol.receive()
+
 
 # FETCHING INFORMATION -----------------------------------------------------------------------------------------------
     @connection_needed
@@ -134,7 +144,7 @@ class ServerAPI:
         respond = self.tls_protocol.receive()
         # parse the respond as json of list of RestrictionData
         print("respond (json res)" + respond)
-        return RestrictionSerializer.deserialize(respond)
+        return RestrictionListSerializer.deserialize(respond)
 
 
     @connection_needed
@@ -148,6 +158,14 @@ class ServerAPI:
         print("respond (json ch)" + respond)
         self.children = ChildListSerializer.deserialize(respond)
         return self.children
+    
+    @connection_needed
+    def get_programs(self, child_name):
+        '''
+            This method is used to get the available programs from the server.
+        '''
+        self.tls_protocol.send(self.build_request("fetch", "programs", child_name))
+        return self.tls_protocol.receive()
         
 
 # ---------------------------------------------------------------------------------------------------------------------
