@@ -116,6 +116,14 @@ class ServerAPI:
         self.tls_protocol.send(self.build_request("restrict", "add_restriction", child_name, program_name, start_time, end_time, allowed_time, time_span))
         return self.tls_protocol.receive()
 
+    @connection_needed
+    def remove_restriction(self, child_name, program_name):
+        '''
+            This method is used to remove a restriction from the server.
+        '''
+        self.tls_protocol.send(self.build_request("restrict", "remove_restriction", child_name, program_name))
+        return self.tls_protocol.receive()
+
 
 # FETCHING INFORMATION -----------------------------------------------------------------------------------------------
     @connection_needed

@@ -8,7 +8,8 @@ class RestrictionsController(IController):
         self.restrictions_service = restrictions_service
 
         self.commands = {
-            "add_restriction": (self.restrictions_service.add_restriction, ["child_name", "program_name", "start_time", "end_time", "allowed_time", "time_span"])
+            "add_restriction": (self.restrictions_service.add_restriction, ["child_name", "program_name", "start_time", "end_time", "allowed_time", "time_span"]),
+            "remove_restriction": (self.restrictions_service.remove_restriction, ["child_name", "program_name"]),
         }
 
     def run(self, *args):

@@ -96,6 +96,7 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         return self.cursor.fetchone()
     
     def remove_restriction(self, child_id, program_name):
+        print(f"Removing restriction with child_id: {child_id} and program_name: {program_name}")
         self.cursor.execute(REMOVE_RESTRICTION, (child_id, program_name))
         self.connection.commit()
 

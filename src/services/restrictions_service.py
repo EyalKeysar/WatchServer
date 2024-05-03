@@ -17,4 +17,13 @@ class RestrictionsService(IService):
         restriction_id = self.restrictions_db_repository.get_len_all_restrictions() + 1
         restriction = Restriction(restriction_id, child_id, program_name, start_time, end_time, allowed_time, time_span, 0)
         return self.restrictions_db_repository.add_restriction(restriction)
+    
+
+    def remove_restriction(self, email, child_name, program_name):
+        """
+            Removes a restriction from the database.
+        """
+        child_id = self.restrictions_db_repository.get_child_id(email, child_name)
+        return self.restrictions_db_repository.remove_restriction(child_id, program_name)
+    
         
