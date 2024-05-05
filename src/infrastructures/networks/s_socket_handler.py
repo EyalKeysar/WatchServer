@@ -58,7 +58,7 @@ class SecureSocketHandler(NetworkHandler):
         # send over thread to avoid blocking the main thread
 
         try:
-            print(f"Sending response to {client_socket.getpeername()} : {response}")
+            # print(f"Sending response to {client_socket.getpeername()} : {response}")
             for socket, tls_protocol in self.tls_protocols:
                 if socket == client_socket:
                     tls_protocol.send(response)

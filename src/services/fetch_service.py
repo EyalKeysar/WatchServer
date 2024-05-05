@@ -71,10 +71,19 @@ class FetchService(IService):
         return self.users_db_repo.get_statistics(child_id)
     
     def fetch_agent_restrictions(self, mac_addr):
-        child_id = self.users_db_repo.get_child_id_by_mac(mac_addr)
-        restrictions_raw = self.restrictions_db_repo.get_restrictions(child_id)
-        restrictions = []
-        for restriction in restrictions_raw:
-            print("restriction: ", restriction)
-            restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5], restriction[6], restriction[7]))
+        """
+        Fetches restrictions for an agent.
+        """
+        print("something")
+        try:
+            child_id = self.users_db_repo.get_child_id_by_mac(mac_addr)
+            restrictions_raw = self.restrictions_db_repo.get_restrictions(child_id)
+            restrictions = []
+            for restriction in restrictions_raw:
+                restrictions.append(Restriction(restriction[0], restriction[1], restriction[2], restriction[3], restriction[4], restriction[5], restriction[6], restriction[7]))
+            print("restrictions = ", restrictions)
+        except Exception as e:
+            print(e)
+            return None
         return RestrictionListSerializer.serialize(restrictions)
+    

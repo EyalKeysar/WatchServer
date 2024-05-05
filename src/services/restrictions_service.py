@@ -31,7 +31,6 @@ class RestrictionsService(IService):
         """
             Updates the known programs of the child.
         """
-        print("add known program ", mac_addr, programs_list)
         child_id = self.users_db_repository.get_child_id_by_mac(mac_addr)
         if child_id is None:
             return False
