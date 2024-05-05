@@ -9,7 +9,8 @@ class AuthenticationController(IController):
         self.commands = {
             "login": [self.authentication_service.login, ["email", "password"]],
             "signup": [self.authentication_service.signup, ["email", "password", "username"]],
-            "new_agent": [self.authentication_service.new_agent, ["mac_address"]]
+            "new_agent": [self.authentication_service.new_agent, ["mac_address"]],
+            "login_agent": [self.authentication_service.login_agent, ["auth_str"]]
         }
         
     def run(self, *args):

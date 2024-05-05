@@ -17,6 +17,10 @@ class ControllersContainer:
         self.authenticated_connections = []
 
     def handle(self, connection_id, request): # in socket the connection_id is the socket object
+
+        if request == "ping":
+            return "pong"
+
         command_to_controller = {
             "auth": self.authentication_controller,
             "manage": self.children_manager_controller,
@@ -55,5 +59,7 @@ class ControllersContainer:
             args = [email] + args
 
             response = command_to_controller[command].run(*args)
+            if type(response) == bool:
+                response = "True" if response else "False"
             return response if response is not None else "None"
         

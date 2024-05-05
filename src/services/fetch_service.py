@@ -55,7 +55,8 @@ class FetchService(IService):
         Fetches programs for a child.
         """
         child_id = self.restrictions_db_repo.get_child_id(email, child_name)
-        return "example_program_1"
+        programs_raw = self.restrictions_db_repo.get_known_programs(child_id)
+        return StringListSerializer.serialize(programs_raw)
 
     def fetch_info(self):
         """

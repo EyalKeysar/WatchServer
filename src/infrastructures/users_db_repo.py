@@ -124,7 +124,16 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection.commit()
         return True
     
-
+    def get_agent(self, auth_string):
+        self.cursor.execute("SELECT * FROM children WHERE auth_string = ?", (auth_string,))
+        agent = self.cursor.fetchone()
+        if agent is None:
+            return False, None
+        return True, agent[2]
     
-
-
+    def get_child_id_by_mac(self, mac_address):
+        self.cursor.execute("SELECT child_id FROM children WHERE mac_address = ?", (mac_address,))
+        child_id = self.cursor.fetchone()
+        if child_id is None:
+            return None
+        return child_id[0]

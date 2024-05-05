@@ -10,6 +10,7 @@ class RestrictionsController(IController):
         self.commands = {
             "add_restriction": (self.restrictions_service.add_restriction, ["child_name", "program_name", "start_time", "end_time", "allowed_time", "time_span"]),
             "remove_restriction": (self.restrictions_service.remove_restriction, ["child_name", "program_name"]),
+            "update_known_programs": (self.restrictions_service.add_known_program, ["programs_list"])
         }
 
     def run(self, *args):

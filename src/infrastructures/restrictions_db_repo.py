@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS time_limits (
     time_span TEXT NOT NULL,
     usage_time FLOAT NOT NULL
 )"""
+CREATE_KNOWN_PROGRAMS_TABLE = """
+CREATE TABLE IF NOT EXISTS known_programs (
+    child_id INTEGER NOT NULL,
+    program_name TEXT PRIMARY KEY
+    )
+"""
 ADD_RESTRICTION = """
 INSERT INTO restrictions (child_id, program_name, start_time, end_time, allowed_time, time_span, usage_time)
 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -70,6 +76,7 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         self.cursor.execute(CREATE_RESTRICTIONS_TABLE)
         self.cursor.execute(CREATE_CHILDREN_TABLE)
         self.cursor.execute(CREATE_TIME_LIMITS_TABLE)
+        self.cursor.execute(CREATE_KNOWN_PROGRAMS_TABLE)
         self.connection.commit()
 
     def add_restriction(self, restriction):
@@ -127,3 +134,19 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         self.cursor.execute("SELECT * FROM time_limits WHERE id = ?", (time_limit_id[0],))
         time_limit = self.cursor.fetchone()
         return time_limit
+    
+    def add_known_program(self, child_id, program_name):
+        self.cursor.execute("INSERT INTO known_programs (child_id, program_name) VALUES (?, ?)", (child_id, program_name))
+        self.connection.commit()
+        return True
+    
+    def get_known_programs(self, child_id):
+        self.cursor.execute("SELECT * FROM known_programs WHERE child_id = ?", (child_id,))
+        return self.cursor.fetchall()
+    
+    def get_known_program(self, child_id, program_name):
+        self.cursor.execute("SELECT * FROM known_programs WHERE child_id = ? AND program_name = ?", (child_id, program_name))
+        return self.cursor.fetchone()
+    
+    
+    

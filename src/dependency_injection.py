@@ -27,7 +27,7 @@ def inject():
     auth_s = AuthenticationService(users_db_repo, restrictions_db_repo)
     children_manager_s = ChildrenManagerService(users_db_repo, restrictions_db_repo)
     fetch_s = FetchService(users_db_repo, restrictions_db_repo)
-    restrictions_s = RestrictionsService(restrictions_db_repo)
+    restrictions_s = RestrictionsService(users_db_repo, restrictions_db_repo)
     
     auth_c = AuthenticationController(auth_s)
     children_manager_c = ChildrenManagerController(children_manager_s)
