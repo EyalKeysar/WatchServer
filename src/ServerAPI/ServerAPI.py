@@ -168,6 +168,8 @@ class ServerAPI:
         '''
         self.tls_protocol.send(self.build_request("restrict", "update_known_programs", StringListSerializer.serialize(programs_list)))
         return self.tls_protocol.receive()
+    
+
 
 # FETCHING INFORMATION -----------------------------------------------------------------------------------------------
     @connection_exception_catcher
@@ -227,6 +229,15 @@ class ServerAPI:
         self.tls_protocol.send(self.build_request("fetch", "programs", child_name))
         return StringListSerializer.deserialize(self.tls_protocol.receive())
         
+    @authentication_needed
+    @connection_exception_catcher
+    @connection_needed
+    def agent_get_restrictions(self):
+        '''
+            This method is used to get the restrictions from the server.
+        '''
+        self.tls_protocol.send(self.build_request("fetch", "agent_restrictions"))
+        return self.tls_protocol.receive()
 
 # ---------------------------------------------------------------------------------------------------------------------
 

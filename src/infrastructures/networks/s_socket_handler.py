@@ -56,12 +56,16 @@ class SecureSocketHandler(NetworkHandler):
     
     def send_response(self, client_socket, response):
         # send over thread to avoid blocking the main thread
-        print(f"Sending response to {client_socket.getpeername()} : {response}")
-        for socket, tls_protocol in self.tls_protocols:
-            if socket == client_socket:
-                tls_protocol.send(response)
-                break
-        
+
+        try:
+            print(f"Sending response to {client_socket.getpeername()} : {response}")
+            for socket, tls_protocol in self.tls_protocols:
+                if socket == client_socket:
+                    tls_protocol.send(response)
+                    break
+        except Exception as e:
+            print(f"Exception occurred while sending response to {e}")
+
     def close(self):
         self.server_socket.close()
         for client_socket in self.client_sockets:

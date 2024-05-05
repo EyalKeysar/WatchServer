@@ -1,6 +1,7 @@
 from dependency_injection import inject
-from infrastructures.networks.network_handler import NetworkHandler
+from infrastructures.networks.s_socket_handler import SecureSocketHandler
 from infrastructures.networks.network_constants import HOST, PORT
+
 
 class Worker:
     def __init__(self, network_handler):
@@ -21,6 +22,5 @@ class Worker:
 
 
 if __name__ == "__main__":
-    from infrastructures.networks.s_socket_handler import SecureSocketHandler
     worker = Worker(SecureSocketHandler(HOST, PORT))
     worker.work()

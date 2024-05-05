@@ -3,11 +3,12 @@ from infrastructures.controllers.children_manager_controller import ChildrenMana
 from infrastructures.controllers.restrictions_controller import RestrictionsController
 from infrastructures.controllers.fetch_controller import FetchController
 
+
 class ControllersContainer:
-    def __init__(self, 
-                 authentication_controller: AuthenticationController, 
-                 children_manager_controller: ChildrenManagerController, 
-                 restrictions_controller: RestrictionsController, 
+    def __init__(self,
+                 authentication_controller: AuthenticationController,
+                 children_manager_controller: ChildrenManagerController,
+                 restrictions_controller: RestrictionsController,
                  fetch_controller: FetchController
                  ):
         self.authentication_controller = authentication_controller
@@ -16,11 +17,10 @@ class ControllersContainer:
         self.fetch_controller = fetch_controller
         self.authenticated_connections = []
 
-    def handle(self, connection_id, request): # in socket the connection_id is the socket object
-
+    def handle(self, connection_id, request):
+        # in socket the connection_id is the socket object
         if request == "ping":
             return "pong"
-
         command_to_controller = {
             "auth": self.authentication_controller,
             "manage": self.children_manager_controller,
@@ -31,20 +31,19 @@ class ControllersContainer:
 
         if command not in command_to_controller:
             return "Command not found"
-        
+
         is_authenticated = False
         for connection, email in self.authenticated_connections:
             if connection == connection_id:
                 is_authenticated = True
                 break
 
-
         if command != "auth" and not is_authenticated:
             return "Not authenticated"
         elif command == "auth":
             response, email = command_to_controller[command].run(*args)
             print(f"Authenticated: {response} | {email}")
-            if response == True:
+            if response is True:
                 print("Appending")
                 self.authenticated_connections.append((connection_id, email))
 
@@ -59,7 +58,6 @@ class ControllersContainer:
             args = [email] + args
 
             response = command_to_controller[command].run(*args)
-            if type(response) == bool:
+            if isinstance(response, bool):
                 response = "True" if response else "False"
             return response if response is not None else "None"
-        

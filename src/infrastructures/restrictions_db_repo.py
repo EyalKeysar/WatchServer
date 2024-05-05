@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS time_limits (
 CREATE_KNOWN_PROGRAMS_TABLE = """
 CREATE TABLE IF NOT EXISTS known_programs (
     child_id INTEGER NOT NULL,
-    program_name TEXT PRIMARY KEY
+    program_name TEXT NOT NULL
     )
 """
 ADD_RESTRICTION = """
