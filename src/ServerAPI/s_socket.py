@@ -42,6 +42,21 @@ class AESCipher:
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         plaintext = unpad(cipher.decrypt(ciphertext[self.block_size:]), self.block_size)
         return plaintext.decode()
+    
+    def encrypt_bytes(self, bytes):
+        iv = get_random_bytes(self.block_size)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        cipherbytes = cipher.encrypt(pad(bytes, self.block_size))
+        return iv + cipherbytes
+    
+    def decrypt_bytes(self, cipherbytes):
+        if len(cipherbytes) < self.block_size:
+            raise ValueError("Invalid ciphertext")
+        
+        iv = cipherbytes[:self.block_size]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        bytes = unpad(cipher.decrypt(cipherbytes[self.block_size:]), self.block_size)
+        return bytes
 
 
 
@@ -133,6 +148,22 @@ class TLSProtocol:
         if not encrypted_data:
             return None
         decrypted_data = self.aes_cipher.decrypt(encrypted_data)
+        return decrypted_data
+    
+    def send_bytes(self, bytes):
+        if self.aes_cipher is None:
+            raise Exception("AES cipher is not initialized.")
+        encrypted_data = self.aes_cipher.encrypt_bytes(bytes)
+
+        send(self.socket,encrypted_data)
+
+    def receive_bytes(self):
+        if self.aes_cipher is None:
+            raise Exception("AES cipher is not initialized.")
+        encrypted_data = receive(self.socket)
+        if not encrypted_data:
+            return None
+        decrypted_data = self.aes_cipher.decrypt_bytes(encrypted_data)
         return decrypted_data
 
 LENGTH_PREFIX_SIZE = 4

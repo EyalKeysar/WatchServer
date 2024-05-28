@@ -148,5 +148,9 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         self.cursor.execute("SELECT * FROM known_programs WHERE child_id = ? AND program_name = ?", (child_id, program_name))
         return self.cursor.fetchone()
     
-    
-    
+    def get_child_id_by_name(self, email, name):
+        self.cursor.execute("SELECT child_id FROM children WHERE parent_email = ? AND name = ?", (email, name))
+        child_id = self.cursor.fetchone()
+        if child_id is None:
+            return None
+        return child_id[0]

@@ -24,6 +24,8 @@ class ServerAPI:
             try:
                 return func(self, *args, **kwargs)
             except Exception as e:
+                self.server_socket.close()
+                self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.is_connected = False
                 return str(e)
         return wrapper
@@ -49,6 +51,8 @@ class ServerAPI:
         '''
             This method is used to connect to the server.
         '''
+        if self.is_connected:
+            return
         self.server_socket.connect((self.host, self.port))
         print(f"Connected to {self.host}:{self.port}")
 
@@ -75,6 +79,18 @@ class ServerAPI:
         else:
             print("args: ", args)
             return f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}" + f"{ARGS_SEPERATOR}".join(args) 
+        
+    def build_request_with_bytes(self, service, command, *args):
+        '''
+            This method is used to build the request to be sent to the server.
+        
+            each arg in args is a byte array
+            Returns the request as bytes
+        '''
+        if args == ():
+            return f"{service}{ARGS_SEPERATOR}{command}".encode()
+        else:
+            return f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}".encode() + b"{ARGS_SEPERATOR}".join(args)
 
 
 # AUTHENTICATION -----------------------------------------------------------------------------------------------------
@@ -252,6 +268,63 @@ class ServerAPI:
             This method is used to confirm the agent.
         '''
         self.tls_protocol.send(self.build_request("manage", "confirm_agent", auth_str, child_name))
+        return self.tls_protocol.receive()
+
+
+# STREAMING ---------------------------------------------------------------------------------------------------------
+
+
+    @authentication_needed
+    @connection_exception_catcher
+    @connection_needed
+    def subscribe(self, child_name, type):
+        '''
+            This method is used to subscribe to the server.
+        '''
+        self.tls_protocol.send(self.build_request("stream", "subscribe", child_name, type))
+        return self.tls_protocol.receive()
+    
+    @authentication_needed
+    @connection_exception_catcher
+    @connection_needed
+    def unsubscribe(self, child_name, type):
+        '''
+            This method is used to unsubscribe from the server.
+        '''
+        self.tls_protocol.send(self.build_request("stream", "unsubscribe", child_name, type))
+        return self.tls_protocol.receive()
+    
+    @authentication_needed
+    @connection_exception_catcher
+    @connection_needed
+    def get_frame(self, child_name, type):
+        '''
+            This method is used to get a frame from the server.
+        '''
+        self.tls_protocol.send(self.build_request("stream", "get_frame", child_name, type))
+        # return self.tls_protocol.receive()
+
+        # use receive_bytes instead of receive
+        return self.tls_protocol.receive_bytes()
+        
+    
+    @authentication_needed
+    @connection_exception_catcher
+    @connection_needed
+    def set_frame(self, stream_type, frame):
+        '''
+            This method is used to set a frame to the server.
+        '''
+        # self.tls_protocol.send(self.build_request("stream", "set_frame", type, frame))
+        # return self.tls_protocol.receive()
+
+        # use send_bytes instead of send
+        # check if stream_type is string
+        if not isinstance(stream_type, str):
+            raise Exception("stream_type must be a string")
+        stream_type = stream_type.encode()
+        self.tls_protocol.send_bytes(self.build_request_with_bytes("stream", "set_frame", stream_type, frame))
+
         return self.tls_protocol.receive()
 
 

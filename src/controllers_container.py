@@ -2,19 +2,21 @@ from infrastructures.controllers.authentication_controller import Authentication
 from infrastructures.controllers.children_manager_controller import ChildrenManagerController
 from infrastructures.controllers.restrictions_controller import RestrictionsController
 from infrastructures.controllers.fetch_controller import FetchController
-
+from infrastructures.controllers.stream_controller import StreamController
 
 class ControllersContainer:
     def __init__(self,
                  authentication_controller: AuthenticationController,
                  children_manager_controller: ChildrenManagerController,
                  restrictions_controller: RestrictionsController,
-                 fetch_controller: FetchController
+                 fetch_controller: FetchController,
+                 stream_controller: StreamController
                  ):
         self.authentication_controller = authentication_controller
         self.children_manager_controller = children_manager_controller
         self.restrictions_controller = restrictions_controller
         self.fetch_controller = fetch_controller
+        self.stream_controller = stream_controller
         self.authenticated_connections = []
 
     def handle(self, connection_id, request):
@@ -25,7 +27,8 @@ class ControllersContainer:
             "auth": self.authentication_controller,
             "manage": self.children_manager_controller,
             "restrict": self.restrictions_controller,
-            "fetch": self.fetch_controller
+            "fetch": self.fetch_controller,
+            "stream": self.stream_controller
         }
         command, *args = request.split("|")
 

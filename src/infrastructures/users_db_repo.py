@@ -137,3 +137,10 @@ class UsersDBRepository(IUsersDBRepository):
         if child_id is None:
             return None
         return child_id[0]
+
+    def get_mac_addr(self, email, child_id):
+        self.cursor.execute("SELECT mac_address FROM children WHERE parent_email = ? AND child_id = ?", (email, child_id))
+        mac_address = self.cursor.fetchone()
+        if mac_address is None:
+            return None
+        return mac_address[0]
