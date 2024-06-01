@@ -17,6 +17,7 @@ class Worker:
             client_socket, data = request[0], request[1]
             # print(f"Received data: {data} from {client_socket.getpeername()}")
             response = self.controllers_container.handle(client_socket, data)
+            print(f"Sending response: {response[:100]}")
             self.network_handler.send_response(client_socket, response)
         self.network_handler.close()
 

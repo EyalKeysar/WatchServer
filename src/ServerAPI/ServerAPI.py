@@ -4,6 +4,7 @@ import time
 import json
 from .s_socket import *
 from .shared.SharedDTO import *
+import base64
 
 class ServerAPI:
     '''
@@ -79,18 +80,6 @@ class ServerAPI:
         else:
             print("args: ", args)
             return f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}" + f"{ARGS_SEPERATOR}".join(args) 
-        
-    def build_request_with_bytes(self, service, command, *args):
-        '''
-            This method is used to build the request to be sent to the server.
-        
-            each arg in args is a byte array
-            Returns the request as bytes
-        '''
-        if args == ():
-            return f"{service}{ARGS_SEPERATOR}{command}".encode()
-        else:
-            return f"{service}{ARGS_SEPERATOR}{command}{ARGS_SEPERATOR}".encode() + b"{ARGS_SEPERATOR}".join(args)
 
 
 # AUTHENTICATION -----------------------------------------------------------------------------------------------------
@@ -302,10 +291,8 @@ class ServerAPI:
             This method is used to get a frame from the server.
         '''
         self.tls_protocol.send(self.build_request("stream", "get_frame", child_name, type))
-        # return self.tls_protocol.receive()
 
-        # use receive_bytes instead of receive
-        return self.tls_protocol.receive_bytes()
+        return self.tls_protocol.receive()
         
     
     @authentication_needed
@@ -315,15 +302,8 @@ class ServerAPI:
         '''
             This method is used to set a frame to the server.
         '''
-        # self.tls_protocol.send(self.build_request("stream", "set_frame", type, frame))
-        # return self.tls_protocol.receive()
-
-        # use send_bytes instead of send
-        # check if stream_type is string
-        if not isinstance(stream_type, str):
-            raise Exception("stream_type must be a string")
-        stream_type = stream_type.encode()
-        self.tls_protocol.send_bytes(self.build_request_with_bytes("stream", "set_frame", stream_type, frame))
+        frame = base64.b64encode(frame).decode('utf-8')
+        self.tls_protocol.send(self.build_request("stream", "set_frame", stream_type, frame))
 
         return self.tls_protocol.receive()
 
