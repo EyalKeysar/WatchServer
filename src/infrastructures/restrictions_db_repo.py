@@ -37,7 +37,9 @@ CREATE TABLE IF NOT EXISTS time_limits (
 CREATE_KNOWN_PROGRAMS_TABLE = """
 CREATE TABLE IF NOT EXISTS known_programs (
     child_id INTEGER NOT NULL,
-    program_name TEXT NOT NULL
+    program_name TEXT NOT NULL,
+    usage_time FLOAT NOT NULL,
+    last_updated INTEGER NOT NULL,
     )
 """
 ADD_RESTRICTION = """
@@ -136,7 +138,7 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         return time_limit
     
     def add_known_program(self, child_id, program_name):
-        self.cursor.execute("INSERT INTO known_programs (child_id, program_name) VALUES (?, ?)", (child_id, program_name))
+        self.cursor.execute("INSERT INTO known_programs (child_id, program_name, usage_time, last_updated) VALUES (?, ?, 0, 0)", (child_id, program_name))
         self.connection.commit()
         return True
     
@@ -154,3 +156,27 @@ class RestrictionsDBRepository(IRestrictionsDBRepository):
         if child_id is None:
             return None
         return child_id[0]
+    
+    def update_usage_time(self, child_id, program_name, usage_time):
+        self.cursor.execute("UPDATE known_programs SET usage_time = ? WHERE child_id = ? AND program_name = ?", (usage_time, child_id, program_name))
+        self.connection.commit()
+        return True
+    
+    def get_usage_of_program(self, child_id, program_name):
+        self.cursor.execute("SELECT usage_time FROM known_programs WHERE child_id = ? AND program_name = ?", (child_id, program_name))
+        usage_time = self.cursor.fetchone()
+        if usage_time is None:
+            return None
+        return usage_time[0]
+    
+    def get_last_updated(self, child_id, program_name):
+        self.cursor.execute("SELECT last_updated FROM known_programs WHERE child_id = ? AND program_name = ?", (child_id, program_name))
+        last_updated = self.cursor.fetchone()
+        if last_updated is None:
+            return None
+        return last_updated[0]
+    
+    def update_last_updated(self, child_id, program_name, last_updated):
+        self.cursor.execute("UPDATE known_programs SET last_updated = ? WHERE child_id = ? AND program_name = ?", (last_updated, child_id, program_name))
+        self.connection.commit()
+        return True
