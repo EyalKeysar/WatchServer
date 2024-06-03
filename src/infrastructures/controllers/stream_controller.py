@@ -16,7 +16,6 @@ class StreamController(IController):
         }
 
     def run(self, *args):
-        print("email: ", args[0], "command: ", args[1], "args: ", args[2:])
         email = args[0]
         command = args[1]
         args = args[2:]

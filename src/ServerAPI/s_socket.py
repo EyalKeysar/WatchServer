@@ -121,7 +121,6 @@ class TLSProtocol:
         if self.aes_cipher is None:
             raise Exception("AES cipher is not initialized.")
         encrypted_data = self.aes_cipher.encrypt(data)
-        print("encrypted data: ", encrypted_data)
 
         send(self.socket,encrypted_data)
 
@@ -129,7 +128,6 @@ class TLSProtocol:
         if self.aes_cipher is None:
             raise Exception("AES cipher is not initialized.")
         encrypted_data = receive(self.socket)
-        print("encrypted data: ", encrypted_data)
         if not encrypted_data:
             return None
         decrypted_data = self.aes_cipher.decrypt(encrypted_data)
@@ -149,7 +147,12 @@ def receive(socket):
     length_prefix = socket.recv(LENGTH_PREFIX_SIZE)
     length = int.from_bytes(length_prefix, byteorder='big')
     print("length: ", length)
-    return socket.recv(length)
+    data = socket.recv(length)
+    # make sure all data is received
+    while len(data) < length:
+        data += socket.recv(length - len(data))
+    return data
+
 
 def close(socket):
     socket.close()
