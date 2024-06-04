@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS known_programs (
     child_id INTEGER NOT NULL,
     program_name TEXT NOT NULL,
     usage_time FLOAT NOT NULL,
-    last_updated INTEGER NOT NULL,
+    last_updated INTEGER NOT NULL
     )
 """
 ADD_RESTRICTION = """
