@@ -12,6 +12,18 @@ class AuthenticationService(IService):
         self.users_db_repository = users_db_repository
 
     def signup(self, email, password, username):
+        
+        if email is None or password is None or username is None:
+            print("Invalid input")
+            return False, None
+        elif len(username) < 4 or len(password) < 4:
+            print("Username and password must be at least 4 characters long")
+            return False, None
+        elif '@' not in email or '.' not in email or email.count('@') > 1 or email.count('.') > 1 or email.index('@') > email.index('.') or len(email) < 6:
+            print("Invalid email")
+            return False, None
+        
+
         parent = ParentData(email, username, sha256(password.encode()).hexdigest())
         if self.users_db_repository.add_parent(parent):
             print("Parent added successfully")
@@ -25,6 +37,9 @@ class AuthenticationService(IService):
         if not respond:
             print("Parent not found")
             return False, None
+        elif password is None or len(password) < 4:
+            return False, None
+        
         parent = ParentData(email, name, password_hash)
         if parent is None:
             print("Parent not found")

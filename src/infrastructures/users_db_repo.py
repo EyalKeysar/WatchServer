@@ -3,6 +3,7 @@ from ServerAPI.shared.SharedDTO import ParentData
 import sqlite3
 import hashlib
 
+# SQL queries for table creation
 CREATE_PARENTS_TABLE = """
 CREATE TABLE IF NOT EXISTS parents (
     email TEXT PRIMARY KEY NOT NULL,
@@ -25,6 +26,8 @@ CREATE TABLE IF NOT EXISTS agents (
     time_stamp TEXT NOT NULL
 )
 """
+
+# SQL queries for parents operations
 ADD_PARENT = """
 INSERT INTO parents (email, username, password_hash)
 VALUES (?, ?, ?)
@@ -41,6 +44,8 @@ UPDATE parents SET username = ? WHERE email = ?
 REMOVE_PARENT = """
 DELETE FROM parents WHERE email = ?
 """
+
+# SQL queries for agents operations
 ADD_AGENT = """
 INSERT INTO agents (auth_string, mac_address, time_stamp)
 VALUES (?, ?, ?)
@@ -50,6 +55,24 @@ SELECT * FROM agents WHERE auth_string = ?
 """
 DELETE_WAITING_AGENT = """
 DELETE FROM agents WHERE auth_string = ?
+"""
+
+# SQL queries for children operations
+ADD_CHILD = """
+INSERT INTO children (child_id, auth_string, mac_address, parent_email)
+VALUES (?, ?, ?, ?)
+"""
+GET_ALL_CHILDREN = """
+SELECT * FROM children
+"""
+GET_AGENT = """
+SELECT * FROM children WHERE auth_string = ?
+"""
+GET_CHILD_ID_BY_MAC = """
+SELECT child_id FROM children WHERE mac_address = ?
+"""
+GET_MAC_ADDR = """
+SELECT mac_address FROM children WHERE parent_email = ? AND child_id = ?
 """
 
 class UsersDBRepository(IUsersDBRepository):
@@ -69,9 +92,10 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection.commit()
 
     def add_parent(self, parent):
+        # Check if parent already exists
         if self.get_parent(parent.email)[1] is not None:
-            print(f"Parent with email {parent.email} already exists, parent: {self.get_parent(parent.email)}")
             return False
+        # Add new parent
         self.cursor.execute(ADD_PARENT, (parent.email, parent.name, parent.password_hash))
         self.connection.commit()
         return True
@@ -82,7 +106,6 @@ class UsersDBRepository(IUsersDBRepository):
         if str_parent is None:
             return False, None, None
         return True, str_parent[1], str_parent[2]
-
 
     def update_parent(self, parent):
         self.cursor.execute(UPDATE_PARENT, (parent.new_name, parent.email))
@@ -116,30 +139,30 @@ class UsersDBRepository(IUsersDBRepository):
         self.connection.commit()
 
     def get_all_children(self):
-        self.cursor.execute("SELECT * FROM children")
+        self.cursor.execute(GET_ALL_CHILDREN)
         return self.cursor.fetchall()
 
     def add_child(self, mac_address, parent_email, auth_string, child_id):
-        self.cursor.execute("INSERT INTO children (child_id, auth_string, mac_address, parent_email) VALUES (?, ?, ?, ?)", (child_id, auth_string, mac_address, parent_email))
+        self.cursor.execute(ADD_CHILD, (child_id, auth_string, mac_address, parent_email))
         self.connection.commit()
         return True
     
     def get_agent(self, auth_string):
-        self.cursor.execute("SELECT * FROM children WHERE auth_string = ?", (auth_string,))
+        self.cursor.execute(GET_AGENT, (auth_string,))
         agent = self.cursor.fetchone()
         if agent is None:
             return False, None
         return True, agent[2]
     
     def get_child_id_by_mac(self, mac_address):
-        self.cursor.execute("SELECT child_id FROM children WHERE mac_address = ?", (mac_address,))
+        self.cursor.execute(GET_CHILD_ID_BY_MAC, (mac_address,))
         child_id = self.cursor.fetchone()
         if child_id is None:
             return None
         return child_id[0]
 
     def get_mac_addr(self, email, child_id):
-        self.cursor.execute("SELECT mac_address FROM children WHERE parent_email = ? AND child_id = ?", (email, child_id))
+        self.cursor.execute(GET_MAC_ADDR, (email, child_id))
         mac_address = self.cursor.fetchone()
         if mac_address is None:
             return None

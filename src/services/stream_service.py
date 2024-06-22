@@ -31,6 +31,7 @@ class StreamService(IService):
         if (mac_addr, type, email) in self.streams:
             print(f"{email} Unsubscribing from {mac_addr}-{type}")
             del self.streams[(mac_addr, type, email)]
+        return True
     
     def get_frame(self, email, child_name, stream_type):
         child_id = self.restrictions_db_repository.get_child_id_by_name(email, child_name)
